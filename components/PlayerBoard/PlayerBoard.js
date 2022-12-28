@@ -1,17 +1,31 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, Image} from 'react-native';
+import {Peice} from '../Peice/Peice';
 
-const PlayerBoard = ({color, style}) => {
+const redPeice = require('../../assets/red.png');
+const greenPeice = require('../../assets/green.png');
+const bluePeice = require('../../assets/blue.png');
+const yellowPeice = require('../../assets/yellow.png');
+
+const PlayerBoard = ({color, style, board}) => {
   return (
     <View style={{backgroundColor: color, flex: 3, ...style}}>
       <View style={styles.piecesWrapper}>
         <View style={styles.playerRow}>
-          <View style={{...styles.pieces, backgroundColor: color}}></View>
-          <View style={{...styles.pieces, backgroundColor: color}}></View>
+          <View style={{...styles.pieces, backgroundColor: color}}>
+            <Peice color={color} />
+          </View>
+          <View style={{...styles.pieces, backgroundColor: color}}>
+            <Peice color={color} />
+          </View>
         </View>
         <View style={styles.playerRow}>
-          <View style={{...styles.pieces, backgroundColor: color}}></View>
-          <View style={{...styles.pieces, backgroundColor: color}}></View>
+          <View style={{...styles.pieces, backgroundColor: color}}>
+            <Peice color={color} />
+          </View>
+          <View style={{...styles.pieces, backgroundColor: color}}>
+            <Peice color={color} />
+          </View>
         </View>
       </View>
     </View>
@@ -35,6 +49,8 @@ const styles = StyleSheet.create({
     height: 30,
     width: 30,
     borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

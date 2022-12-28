@@ -24,8 +24,8 @@ import GameBoard from './screen/GameBoard/GameBoard';
 const App = () => {
   return (
     <>
-      <Home></Home>
-      {/* <GameBoard /> */}
+      {/* <Home></Home> */}
+      <GameBoard />
     </>
   );
 };
