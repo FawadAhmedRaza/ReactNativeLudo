@@ -5,10 +5,10 @@ export const VerticalPoints = ({color, position, board}) => {
   const getColor = (row, ind, position, color) => {
     if (
       (row === 0 && position == 'top' && ind == 2) ||
-      (row === 1 && position == 'top') ||
+      (row === 1 && position == 'top' && ind) ||
       (row === 2 && position == 'top' && ind == 1) ||
       (row === 0 && position == 'bottom' && ind == 4) ||
-      (row === 1 && position == 'bottom') ||
+      (row === 1 && position == 'bottom' && ind < 5) ||
       (row === 2 && position == 'bottom' && ind == 3)
     ) {
       return color;
@@ -39,7 +39,19 @@ export const VerticalPoints = ({color, position, board}) => {
 
                 // borderColor: el === 1 ? color : 'whitesmoke',
               }}>
-              {el === 1 ? <Peice color={color} /> : null}
+              {el ? (
+                <Peice
+                  color={
+                    el === 1
+                      ? 'green'
+                      : el === 2
+                      ? 'yellow'
+                      : el === 3
+                      ? 'red'
+                      : 'blue'
+                  }
+                />
+              ) : null}
             </View>
           ))}
         </View>

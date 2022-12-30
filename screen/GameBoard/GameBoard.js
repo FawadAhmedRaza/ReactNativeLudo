@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   StyleSheet,
@@ -7,34 +7,145 @@ import {
   TouchableOpacity,
   Text,
 } from 'react-native';
+import Dice from '../../components/Dice/Dice';
 import {HorizantolPoints} from '../../components/HorizantolPoints/HorizantolPoints';
 import PlayerBoard from '../../components/PlayerBoard/PlayerBoard';
 import {VerticalPoints} from '../../components/VerticalPoints/VerticalPoints';
 import {colors} from '../../conatants/colors';
 
+const INITIAL_STATE = [
+  [
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+  ],
+  [
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+  ],
+  [
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+  ],
+  [
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+  ],
+];
+
 const GameBoard = () => {
-  const [diesCount, setDiesCount] = useState(0);
+  const [diesCount, setDiesCount] = useState([]);
   const [currentPlayer, setCurrentPlayer] = useState(1);
+  const [board, setBoard] = useState([...INITIAL_STATE]);
+
   const [players, setPlayers] = useState([
-    {name: 'player1', turn: 1},
-    {name: 'player2', turn: 1},
-    {name: 'player3', turn: 1},
-    {name: 'player4', turn: 1},
+    {
+      name: 'player1',
+      boardIndex: 0,
+      startingPoint: 1,
+      currentPossition: 1,
+      winPieces: [],
+    },
+    {
+      name: 'player2',
+      boardIndex: 1,
+      startingPoint: 31,
+      currentPossition: 31,
+      winPieces: [],
+    },
+    {
+      name: 'player3',
+      boardIndex: 2,
+      startingPoint: 51,
+      currentPossition: 1,
+      winPieces: [],
+    },
+    {
+      name: 'player4',
+      boardIndex: 3,
+      startingPoint: 71,
+      currentPossition: 1,
+      winPieces: [],
+    },
   ]);
 
+  const movePiece = () => {
+    let temp = [...board];
+  };
+
+  useEffect(() => {
+    movePiece();
+  }, [diesCount]);
+
   const changeTurn = current => {
-    if (currentPlayer < 4) {
-      setCurrentPlayer(currentPlayer + 1);
+    if (current < 4) {
+      setCurrentPlayer(current + 1);
     } else {
       setCurrentPlayer(1);
     }
   };
 
   const randomIntFromInterval = (min, max) => {
-    setDiesCount(Math.floor(Math.random() * (max - min + 1) + min));
+    if (diesCount[diesCount.length - 1] === 6) {
+      setDiesCount(prev => [
+        ...prev,
+        Math.floor(Math.random() * (max - min + 1) + min),
+      ]);
+    } else {
+      setDiesCount([Math.floor(Math.random() * (max - min + 1) + min)]);
+    }
+    let ind = players;
+    ind[currentPlayer - 1]['currentPossition'] += diesCount?.reduce(
+      (a, n) => a + n,
+      0,
+    );
+    setPlayers(ind);
   };
+
   return (
     <View style={styles.container}>
+      <View
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-around',
+          // backgroundColor: 'white',
+        }}>
+        <View
+          style={{
+            backgroundColor: currentPlayer === 1 ? 'green' : 'white',
+            borderRadius: 20,
+            borderWidth: 2,
+          }}>
+          <Text
+            style={{
+              fontSize: 25,
+              fontWeight: 'bold',
+              color: currentPlayer === 1 ? 'white' : 'green',
+            }}>
+            Player 1
+          </Text>
+        </View>
+        <View
+          style={{
+            backgroundColor: currentPlayer === 2 ? 'yellow' : 'white',
+            borderRadius: 20,
+            borderColor: 'gold',
+            borderWidth: 2,
+          }}>
+          <Text
+            style={{
+              fontSize: 25,
+              fontWeight: 'bold',
+              color: currentPlayer === 2 ? 'white' : 'yellow',
+            }}>
+            Player 2
+          </Text>
+        </View>
+      </View>
       <View style={styles.gameBoard}>
         <View style={{...styles.playersBorad, borderTopLeftRadius: 30}}>
           <PlayerBoard
@@ -43,11 +154,7 @@ const GameBoard = () => {
             style={{borderTopLeftRadius: 15}}
           />
           <VerticalPoints
-            board={[
-              [0, 0, 0, 1, 0, 0],
-              [0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0],
-            ]}
+            board={board[1]}
             color={colors.yellow}
             position={'top'}
           />
@@ -59,11 +166,7 @@ const GameBoard = () => {
         </View>
         <View style={styles.middlelayer}>
           <HorizantolPoints
-            board={[
-              [0, 0, 0, 1, 0, 0],
-              [0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0],
-            ]}
+            board={board[0]}
             position={'left'}
             color={colors.green}
           />
@@ -74,11 +177,7 @@ const GameBoard = () => {
             />
           </View>
           <HorizantolPoints
-            board={[
-              [0, 0, 0, 1, 0, 0],
-              [0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0],
-            ]}
+            board={board[3]}
             position={'right'}
             color={colors.blue}
           />
@@ -90,11 +189,7 @@ const GameBoard = () => {
             position="bottomLeft"
           />
           <VerticalPoints
-            board={[
-              [0, 0, 0, 0, 0, 1],
-              [0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0],
-            ]}
+            board={board[2]}
             color={colors.red}
             position={'bottom'}
           />
@@ -105,23 +200,76 @@ const GameBoard = () => {
           />
         </View>
       </View>
+      <View
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-around',
+        }}>
+        <View
+          style={{
+            backgroundColor: currentPlayer === 3 ? 'red' : 'white',
+            borderRadius: 20,
+            borderWidth: 2,
+          }}>
+          <Text
+            style={{
+              fontSize: 25,
+              fontWeight: 'bold',
+              color: currentPlayer === 3 ? 'white' : 'red',
+            }}>
+            Player 3
+          </Text>
+        </View>
+        <View
+          style={{
+            backgroundColor: currentPlayer === 4 ? 'blue' : 'white',
+            borderRadius: 20,
+            borderWidth: 2,
+          }}>
+          <Text
+            style={{
+              fontSize: 25,
+              fontWeight: 'bold',
+              color: currentPlayer === 4 ? 'white' : 'blue',
+            }}>
+            Player 4
+          </Text>
+        </View>
+      </View>
       <TouchableOpacity
-        style={styles.diseBtn}
+        disabled={diesCount.length > 1 && diesCount[diesCount.length - 1] !== 6}
+        // style={styles.diseBtn}
         onPress={() => {
           randomIntFromInterval(1, 6);
           changeTurn(currentPlayer);
         }}>
-        <Text style={{fontSize: 25, fontWeight: 'bold', color: 'white'}}>
-          Roll Dise
-        </Text>
+        <View
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <Dice num={diesCount[diesCount.length - 1]} />
+        </View>
       </TouchableOpacity>
 
-      <Text style={{alignSelf: 'center', fontSize: 40, color: 'white'}}>
-        {diesCount}
-      </Text>
-      <Text style={{alignSelf: 'center', fontSize: 40, color: 'white'}}>
-        Player {currentPlayer}
-      </Text>
+      <View>
+        <Text style={{alignSelf: 'center', fontSize: 40, color: 'white'}}>
+          Player {currentPlayer}
+        </Text>
+        <View
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            flexDirection: 'row',
+          }}>
+          {diesCount?.map(dise => (
+            <Dice num={dise} />
+          ))}
+        </View>
+      </View>
     </View>
   );
 };

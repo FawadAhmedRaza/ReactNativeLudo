@@ -7,10 +7,10 @@ export const HorizantolPoints = ({color, position, board}) => {
   const getColor = (row, ind, position, color) => {
     if (
       (row === 0 && position == 'left' && ind == 1) ||
-      (row === 1 && position == 'left') ||
+      (row === 1 && position == 'left' && ind) ||
       (row === 2 && position == 'left' && ind == 2) ||
       (row === 0 && position == 'right' && ind == 3) ||
-      (row === 1 && position == 'right') ||
+      (row === 1 && position == 'right' && ind < 5) ||
       (row === 2 && position == 'right' && ind == 4)
     ) {
       return color;
@@ -41,7 +41,21 @@ export const HorizantolPoints = ({color, position, board}) => {
 
                     // borderColor: el === 1 ? color : 'whitesmoke',
                   }}>
-                  {el === 1 ? <Peice color={color} /> : null}
+                  {el.length
+                    ? el?.map(e => (
+                        <Peice
+                          color={
+                            e === 1
+                              ? 'green'
+                              : e === 2
+                              ? 'yellow'
+                              : e === 3
+                              ? 'red'
+                              : 'blue'
+                          }
+                        />
+                      ))
+                    : null}
                 </View>
               ))}
             </View>
