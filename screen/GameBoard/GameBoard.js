@@ -6,12 +6,17 @@ import {
   Image,
   TouchableOpacity,
   Text,
+  Alert,
+  ImageBackground,
 } from 'react-native';
 import Dice from '../../components/Dice/Dice';
 import {HorizantolPoints} from '../../components/HorizantolPoints/HorizantolPoints';
 import PlayerBoard from '../../components/PlayerBoard/PlayerBoard';
 import {VerticalPoints} from '../../components/VerticalPoints/VerticalPoints';
 import {colors} from '../../conatants/colors';
+import {routes} from '../../constants';
+
+import bgImage from '../../assets/boardBackground.jpeg';
 
 const INITIAL_STATE = [
   [
@@ -37,47 +42,77 @@ const INITIAL_STATE = [
 ];
 
 const GameBoard = () => {
-  const [diesCount, setDiesCount] = useState([]);
+  const [diesCount, setDiesCount] = useState(0);
   const [currentPlayer, setCurrentPlayer] = useState(1);
   const [board, setBoard] = useState([...INITIAL_STATE]);
 
   const [players, setPlayers] = useState([
     {
       name: 'player1',
-      boardIndex: 0,
-      startingPoint: 1,
-      currentPossition: 1,
+      currentPossition: 0,
       winPieces: [],
+      lossPieces: [],
     },
     {
       name: 'player2',
-      boardIndex: 1,
-      startingPoint: 31,
-      currentPossition: 31,
+      currentPossition: 0,
       winPieces: [],
+      lossPieces: [],
     },
     {
       name: 'player3',
-      boardIndex: 2,
-      startingPoint: 51,
-      currentPossition: 1,
+      currentPossition: 0,
       winPieces: [],
+      lossPieces: [],
     },
     {
       name: 'player4',
-      boardIndex: 3,
-      startingPoint: 71,
-      currentPossition: 1,
+      currentPossition: 0,
       winPieces: [],
+      lossPieces: [],
     },
   ]);
 
-  const movePiece = () => {
+  const movePiece = address => {
     let temp = [...board];
+
+    for (let i in temp) {
+      for (let j in temp[i]) {
+        for (let e in temp[i][j]) {
+          if (temp[i][j][e] == currentPlayer) {
+            temp[i][j][e] = 0;
+          }
+        }
+      }
+    }
+    let allPlayers = [...players];
+    let place = temp[address[0]][address[1]][address[2]];
+    if (place) {
+      allPlayers[currentPlayer - 1].lossPieces.push(place);
+    }
+    temp[address[0]][address[1]][address[2]] = currentPlayer;
   };
 
   useEffect(() => {
-    movePiece();
+    movePiece(
+      routes[currentPlayer - 1][players[currentPlayer - 1]['currentPossition']],
+    );
+  }, [players[currentPlayer - 1]?.currentPossition]);
+
+  useEffect(() => {
+    console.log(players, 'players');
+  }, [players]);
+
+  useEffect(() => {
+    let temp = [...players];
+    if (
+      temp[currentPlayer - 1]['currentPossition'] + diesCount <
+      routes[currentPlayer - 1].length
+    ) {
+      temp[currentPlayer - 1]['currentPossition'] =
+        temp[currentPlayer - 1]['currentPossition'] + diesCount;
+      setPlayers(temp);
+    }
   }, [diesCount]);
 
   const changeTurn = current => {
@@ -89,172 +124,174 @@ const GameBoard = () => {
   };
 
   const randomIntFromInterval = (min, max) => {
-    if (diesCount[diesCount.length - 1] === 6) {
-      setDiesCount(prev => [
-        ...prev,
-        Math.floor(Math.random() * (max - min + 1) + min),
-      ]);
-    } else {
-      setDiesCount([Math.floor(Math.random() * (max - min + 1) + min)]);
-    }
-    let ind = players;
-    ind[currentPlayer - 1]['currentPossition'] += diesCount?.reduce(
-      (a, n) => a + n,
-      0,
-    );
-    setPlayers(ind);
+    setDiesCount(Math.floor(Math.random() * (max - min + 1) + min));
   };
 
   return (
-    <View style={styles.container}>
-      <View
+    <View style={{flex: 1}}>
+      <ImageBackground
+        source={bgImage}
+        resizeMode="cover"
         style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-around',
-          // backgroundColor: 'white',
+          flex: 1,
+          justifyContent: 'center',
+          // height: '100%',
+          // width: '100%',
         }}>
-        <View
-          style={{
-            backgroundColor: currentPlayer === 1 ? 'green' : 'white',
-            borderRadius: 20,
-            borderWidth: 2,
-          }}>
-          <Text
+        <View style={styles.container}>
+          <View
             style={{
-              fontSize: 25,
-              fontWeight: 'bold',
-              color: currentPlayer === 1 ? 'white' : 'green',
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-around',
+              marginBottom: 20,
             }}>
-            Player 1
-          </Text>
-        </View>
-        <View
-          style={{
-            backgroundColor: currentPlayer === 2 ? 'yellow' : 'white',
-            borderRadius: 20,
-            borderColor: 'gold',
-            borderWidth: 2,
-          }}>
-          <Text
-            style={{
-              fontSize: 25,
-              fontWeight: 'bold',
-              color: currentPlayer === 2 ? 'white' : 'yellow',
-            }}>
-            Player 2
-          </Text>
-        </View>
-      </View>
-      <View style={styles.gameBoard}>
-        <View style={{...styles.playersBorad, borderTopLeftRadius: 30}}>
-          <PlayerBoard
-            position="topLeft"
-            color={colors.green}
-            style={{borderTopLeftRadius: 15}}
-          />
-          <VerticalPoints
-            board={board[1]}
-            color={colors.yellow}
-            position={'top'}
-          />
-          <PlayerBoard
-            position="topRight"
-            color={colors.yellow}
-            style={{borderTopRightRadius: 15}}
-          />
-        </View>
-        <View style={styles.middlelayer}>
-          <HorizantolPoints
-            board={board[0]}
-            position={'left'}
-            color={colors.green}
-          />
-          <View style={{flex: 1.3, borderWidth: 2, borderColor: 'grey'}}>
-            <Image
-              source={require('../../assets/Mid.png')}
-              style={{resizeMode: 'contain', height: 90, width: 90}}
-            />
+            <View
+              style={{
+                backgroundColor: currentPlayer === 1 ? 'green' : 'white',
+                borderRadius: 20,
+                borderWidth: 2,
+              }}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  padding: 8,
+                  fontWeight: 'bold',
+                  color: currentPlayer === 1 ? 'white' : 'green',
+                }}>
+                Player 1
+              </Text>
+            </View>
+            <View
+              style={{
+                backgroundColor: currentPlayer === 2 ? 'yellow' : 'white',
+                borderRadius: 20,
+                borderColor: 'gold',
+                borderWidth: 2,
+              }}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  padding: 8,
+                  fontWeight: 'bold',
+                  color: currentPlayer === 2 ? 'white' : 'yellow',
+                }}>
+                Player 2
+              </Text>
+            </View>
           </View>
-          <HorizantolPoints
-            board={board[3]}
-            position={'right'}
-            color={colors.blue}
-          />
-        </View>
-        <View style={styles.playersBorad}>
-          <PlayerBoard
-            style={{borderBottomLeftRadius: 15}}
-            color={colors.red}
-            position="bottomLeft"
-          />
-          <VerticalPoints
-            board={board[2]}
-            color={colors.red}
-            position={'bottom'}
-          />
-          <PlayerBoard
-            style={{borderBottomRightRadius: 15}}
-            color={colors.blue}
-            position="bottomRight"
-          />
-        </View>
-      </View>
-      <View
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-around',
-        }}>
-        <View
-          style={{
-            backgroundColor: currentPlayer === 3 ? 'red' : 'white',
-            borderRadius: 20,
-            borderWidth: 2,
-          }}>
-          <Text
+          <View style={styles.gameBoard}>
+            <View style={{...styles.playersBorad, borderTopLeftRadius: 30}}>
+              <PlayerBoard
+                position="topLeft"
+                color={colors.green}
+                style={{borderTopLeftRadius: 15}}
+              />
+              <VerticalPoints
+                board={board[1]}
+                color={colors.yellow}
+                position={'top'}
+              />
+              <PlayerBoard
+                position="topRight"
+                color={colors.yellow}
+                style={{borderTopRightRadius: 15}}
+              />
+            </View>
+            <View style={styles.middlelayer}>
+              <HorizantolPoints
+                board={board[0]}
+                position={'left'}
+                color={colors.green}
+              />
+              <View style={{flex: 1.3, borderWidth: 2, borderColor: 'grey'}}>
+                <Image
+                  source={require('../../assets/Mid.png')}
+                  style={{resizeMode: 'contain', height: 90, width: 90}}
+                />
+              </View>
+              <HorizantolPoints
+                board={board[3]}
+                position={'right'}
+                color={colors.blue}
+              />
+            </View>
+            <View style={styles.playersBorad}>
+              <PlayerBoard
+                style={{borderBottomLeftRadius: 15}}
+                color={colors.red}
+                position="bottomLeft"
+              />
+              <VerticalPoints
+                board={board[2]}
+                color={colors.red}
+                position={'bottom'}
+              />
+              <PlayerBoard
+                style={{borderBottomRightRadius: 15}}
+                color={colors.blue}
+                position="bottomRight"
+              />
+            </View>
+          </View>
+          <View
             style={{
-              fontSize: 25,
-              fontWeight: 'bold',
-              color: currentPlayer === 3 ? 'white' : 'red',
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-around',
+              marginTop: 20,
             }}>
-            Player 3
-          </Text>
-        </View>
-        <View
-          style={{
-            backgroundColor: currentPlayer === 4 ? 'blue' : 'white',
-            borderRadius: 20,
-            borderWidth: 2,
-          }}>
-          <Text
-            style={{
-              fontSize: 25,
-              fontWeight: 'bold',
-              color: currentPlayer === 4 ? 'white' : 'blue',
+            <View
+              style={{
+                backgroundColor: currentPlayer === 3 ? 'red' : 'white',
+                borderRadius: 20,
+                borderWidth: 2,
+              }}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: 'bold',
+                  color: currentPlayer === 3 ? 'white' : 'red',
+                  padding: 8,
+                }}>
+                Player 3
+              </Text>
+            </View>
+            <View
+              style={{
+                backgroundColor: currentPlayer === 4 ? 'blue' : 'white',
+                borderRadius: 20,
+                borderWidth: 2,
+              }}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  padding: 8,
+                  fontWeight: 'bold',
+                  color: currentPlayer === 4 ? 'white' : 'blue',
+                }}>
+                Player 4
+              </Text>
+            </View>
+          </View>
+          <TouchableOpacity
+            // disabled={diesCount.length > 1 && diesCount[diesCount.length - 1] !== 6}
+            // style={styles.diseBtn}
+            onPress={() => {
+              randomIntFromInterval(1, 6);
+              changeTurn(currentPlayer);
             }}>
-            Player 4
-          </Text>
-        </View>
-      </View>
-      <TouchableOpacity
-        disabled={diesCount.length > 1 && diesCount[diesCount.length - 1] !== 6}
-        // style={styles.diseBtn}
-        onPress={() => {
-          randomIntFromInterval(1, 6);
-          changeTurn(currentPlayer);
-        }}>
-        <View
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <Dice num={diesCount[diesCount.length - 1]} />
-        </View>
-      </TouchableOpacity>
+            <View
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <Dice num={diesCount} />
+            </View>
+          </TouchableOpacity>
 
-      <View>
+          {/* <View>
         <Text style={{alignSelf: 'center', fontSize: 40, color: 'white'}}>
           Player {currentPlayer}
         </Text>
@@ -265,11 +302,11 @@ const GameBoard = () => {
             alignItems: 'center',
             flexDirection: 'row',
           }}>
-          {diesCount?.map(dise => (
-            <Dice num={dise} />
-          ))}
+          <Dice num={diesCount} />
         </View>
-      </View>
+      </View> */}
+        </View>
+      </ImageBackground>
     </View>
   );
 };
@@ -279,7 +316,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
-    backgroundColor: 'grey',
+    backgroundColor: 'white',
     justifyContent: 'center',
   },
   diseBtn: {
@@ -297,10 +334,20 @@ const styles = StyleSheet.create({
     width: Dimensions.get('screen').width - 20,
     height: Dimensions.get('screen').width - 20,
     alignSelf: 'center',
-    backgroundColor: 'white',
+    backgroundColor: 'red',
+    // backgroundColor: 'white',
     borderRadius: 20,
     borderWidth: 5,
     borderColor: 'gold',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.37,
+    shadowRadius: 7.49,
+
+    elevation: 12,
   },
   playersBorad: {
     flex: 3,

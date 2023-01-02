@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, StyleSheet, Image} from 'react-native';
+import {View, StyleSheet, Animated} from 'react-native';
 import {act} from 'react-test-renderer';
 import {Peice} from '../Peice/Peice';
 
@@ -31,32 +31,30 @@ export const HorizantolPoints = ({color, position, board}) => {
           {board?.map((arr, ind) => (
             <View style={styles.pointMain} key={ind}>
               {arr.map((el, index) => (
-                <View
+                <Animated.View
                   key={index}
                   style={{
                     ...styles.point,
                     borderColor: color,
                     borderWidth: 1,
                     backgroundColor: getColor(ind, index, position, color),
-
-                    // borderColor: el === 1 ? color : 'whitesmoke',
                   }}>
-                  {el.length
-                    ? el?.map(e => (
-                        <Peice
-                          color={
-                            e === 1
-                              ? 'green'
-                              : e === 2
-                              ? 'yellow'
-                              : e === 3
-                              ? 'red'
-                              : 'blue'
-                          }
-                        />
-                      ))
-                    : null}
-                </View>
+                  {el ? (
+                    <Peice
+                      color={
+                        el === 1
+                          ? 'green'
+                          : el === 2
+                          ? 'yellow'
+                          : el === 3
+                          ? 'red'
+                          : el === 4
+                          ? 'blue'
+                          : null
+                      }
+                    />
+                  ) : null}
+                </Animated.View>
               ))}
             </View>
           ))}
